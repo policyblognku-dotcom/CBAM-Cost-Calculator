@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBAM Certificate Cost Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0F2F7;--white:#fff;--b0:#DDE2EC;--b1:#C8D0E0;--b2:#A8B4CA;
+  --t0:#0D1B2E;--t1:#1E3048;--t2:#4A607A;--t3:#8A9BB5;--t4:#C2CEDC;
+  --navy:#0B2545;--blue:#1A56DB;--blue2:#2563EB;--blue-lt:#EBF2FF;--blue-m:#DBEAFE;
+  --amber:#B45309;--amber2:#D97706;--amber-lt:#FEF3C7;
+  --red:#BE123C;--red-lt:#FFF1F4;
+  --green:#0B6B4A;--green2:#059669;--green-lt:#ECFDF5;
+  --purple:#6D28D9;--purple-lt:#F5F3FF;
+  --cem:#7C3AED;--fer:#059669;--hyd:#0284C7;--alu:#D97706;--ste:#DC2626;
+  --shadow-xs:0 1px 2px rgba(13,27,46,.06);
+  --shadow-sm:0 1px 4px rgba(13,27,46,.08),0 1px 2px rgba(13,27,46,.04);
+  --shadow-md:0 4px 16px rgba(13,27,46,.10),0 2px 4px rgba(13,27,46,.05);
+  --shadow-lg:0 12px 40px rgba(13,27,46,.15),0 4px 12px rgba(13,27,46,.07);
+  --r-sm:6px;--r-md:10px;--r-lg:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--navy);
+  display:flex;align-items:center;padding:0 32px;height:56px;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 16px rgba(0,0,0,.3);
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,#D97706,#F59E0B);
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+}
+.brand-text{}
+.brand-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.brand-sub{font-size:9px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.topbar-pills{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.t-pill{
+  font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.6px;
+  padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.55);background:rgba(255,255,255,.06);
+}
+.t-pill.hi{background:rgba(212,106,27,.25);border-color:rgba(212,106,27,.4);color:#FCD34D;}
+
+/* ── CALCULATOR PANEL (top, horizontal, full-width) ── */
+.calc-panel{
+  background:var(--white);
+  border-bottom:2px solid var(--b0);
+  padding:20px 32px 24px;
+  box-shadow:var(--shadow-sm);
+}
+.calc-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.calc-header-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.calc-header-title{font-size:16px;font-weight:700;color:var(--t0);}
+.calc-header-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+.calc-header-right{margin-left:auto;}
+.reg-tag{
+  font-family:'JetBrains Mono',monospace;font-size:8.5px;
+  padding:3px 10px;border-radius:20px;
+  background:var(--blue-lt);border:1px solid rgba(26,86,219,.2);color:var(--blue);
+}
+
+/* INPUTS ROW */
+.calc-inputs{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 120px 120px 1fr;
+  gap:12px;align-items:end;margin-bottom:20px;
+}
+@media(max-width:1100px){.calc-inputs{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:700px){.calc-inputs{grid-template-columns:1fr 1fr;}}
+
+.inp-grp{}
+.inp-lbl{
+  font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--t3);margin-bottom:5px;display:flex;align-items:center;gap:5px;
+}
+.inp-lbl-dot{width:6px;height:6px;border-radius:50%;display:inline-block;}
+select,.inp{
+  width:100%;padding:9px 12px;
+  border:1.5px solid var(--b1);border-radius:var(--r-sm);
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--t0);
+  background:var(--white);outline:none;
+  transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none;
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A9BB5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+  padding-right:30px;cursor:pointer;
+}
+select:focus,.inp:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+
+.calc-btn{
+  width:100%;padding:10px 16px;border:none;border-radius:var(--r-sm);cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+  background:linear-gradient(135deg,var(--blue),#1E40AF);color:#fff;
+  box-shadow:0 3px 10px rgba(26,86,219,.3);
+  transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.calc-btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(26,86,219,.4);}
+.calc-btn:active{transform:translateY(0);}
+
+/* RESULTS ROW */
+.calc-results{
+  display:grid;
+  grid-template-columns:repeat(5,1fr) 2fr;
+  gap:10px;
+}
+@media(max-width:1100px){.calc-results{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:700px){.calc-results{grid-template-columns:1fr 1fr;}}
+
+.res-card{
+  border-radius:var(--r-md);padding:14px 16px;
+  border:1.5px solid;position:relative;overflow:hidden;
+  transition:box-shadow .18s;
+}
+.res-card:hover{box-shadow:var(--shadow-md);}
+.res-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-md) var(--r-md) 0 0;}
+.rc-amber{background:var(--amber-lt);border-color:rgba(180,83,9,.2);}
+.rc-amber::before{background:linear-gradient(90deg,var(--amber),var(--amber2));}
+.rc-red{background:var(--red-lt);border-color:rgba(190,18,60,.2);}
+.rc-red::before{background:var(--red);}
+.rc-blue{background:var(--blue-lt);border-color:rgba(26,86,219,.2);}
+.rc-blue::before{background:var(--blue2);}
+.rc-green{background:var(--green-lt);border-color:rgba(5,150,105,.2);}
+.rc-green::before{background:var(--green2);}
+.rc-purple{background:var(--purple-lt);border-color:rgba(109,40,217,.2);}
+.rc-purple::before{background:var(--purple);}
+.rc-formula{background:var(--bg);border-color:var(--b1);}
+
+.rc-label{font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:5px;}
+.rc-value{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;line-height:1.1;margin-bottom:3px;}
+.rc-sub{font-size:10px;color:var(--t2);}
+.rc-amber .rc-value{color:var(--amber);}
+.rc-red .rc-value{color:var(--red);}
+.rc-blue .rc-value{color:var(--blue2);}
+.rc-green .rc-value{color:var(--green2);}
+.rc-purple .rc-value{color:var(--purple);}
+
+.formula-lines{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);line-height:2;}
+.formula-lines strong{color:var(--t1);font-weight:600;}
+.formula-lines .hl{color:var(--blue2);}
+
+/* ── MAIN CONTENT ── */
+.main{max-width:1600px;margin:0 auto;padding:24px 32px 80px;}
+
+/* SECTION HEADERS */
+.sec{margin-bottom:28px;}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--b0);}
+.sh-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2);}
+.sh-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t4);}
+.sh-r{margin-left:auto;display:flex;align-items:center;gap:8px;}
+
+/* ── TWO-COL GRID ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:1000px){.two-col{grid-template-columns:1fr;}.three-col{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.three-col{grid-template-columns:1fr;}}
+
+/* CARD BASE */
+.card{
+  background:var(--white);border:1px solid var(--b0);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-sm);
+  overflow:hidden;
+}
+.card-pad{padding:18px 20px;}
+.card-inner-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:12px;}
+
+/* PROJECTION TABLE */
+.tbl-wrap{overflow:auto;}
+.proj-tbl{width:100%;border-collapse:collapse;min-width:680px;}
+.proj-tbl th{
+  font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--t3);padding:10px 14px;
+  background:var(--bg);border-bottom:1px solid var(--b0);white-space:nowrap;text-align:right;
+}
+.proj-tbl th.l{text-align:left;}
+.proj-tbl td{
+  padding:9px 14px;border-bottom:1px solid var(--b0);
+  font-size:10.5px;vertical-align:middle;
+}
+.proj-tbl tr:last-child td{border-bottom:none;}
+.proj-tbl tr.active-yr td{background:var(--amber-lt);}
+.proj-tbl tr:hover:not(.active-yr) td{background:var(--bg);}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* COUNTRY COMPARE CARDS */
+.cc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:1000px){.cc-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.cc-grid{grid-template-columns:1fr;}}
+
+.cc-card{
+  background:var(--white);border:1px solid var(--b0);
+  border-radius:var(--r-md);padding:14px 16px;
+  box-shadow:var(--shadow-xs);
+  transition:box-shadow .18s,transform .15s;
+  position:relative;overflow:hidden;
+}
+.cc-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.cc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-md) var(--r-md) 0 0;}
+.cc-rank{position:absolute;top:10px;right:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);font-weight:600;}
+.cc-flag{font-size:22px;margin-bottom:5px;}
+.cc-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.cc-cost{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;margin:5px 0 2px;}
+.cc-detail{font-size:9.5px;color:var(--t2);}
+.cc-bar-wrap{margin-top:10px;height:5px;background:var(--b0);border-radius:3px;overflow:hidden;}
+.cc-bar{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1);}
+
+/* SECTOR FILTER */
+.sector-bar{display:flex;gap:6px;flex-wrap:wrap;}
+.s-btn{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.4px;
+  padding:5px 12px;border:1.5px solid var(--b1);background:var(--white);
+  color:var(--t3);border-radius:20px;cursor:pointer;
+  transition:all .15s;box-shadow:var(--shadow-xs);
+}
+.s-btn:hover{border-color:var(--b2);color:var(--t0);}
+.s-btn.on{color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+
+/* PHASE STRIP */
+.phase-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;}
+.ph-col{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.ph-bar-outer{height:52px;width:100%;display:flex;align-items:flex-end;}
+.ph-bar-inner{width:100%;border-radius:3px 3px 0 0;min-height:2px;}
+.ph-yr{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);}
+.ph-pct{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:600;}
+
+/* CANVAS CHART */
+.chart-box{background:var(--white);border:1px solid var(--b0);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow-sm);}
+canvas{display:block;width:100%;}
+
+/* ALL PRODUCTS TABLE */
+.prod-tbl-wrap{background:var(--white);border:1px solid var(--b0);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+.prod-tbl-filter{
+  padding:12px 16px;border-bottom:1px solid var(--b0);
+  background:var(--bg);display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.prod-tbl-scroll{overflow-x:auto;}
+.prod-tbl{width:100%;border-collapse:collapse;min-width:900px;}
+.prod-tbl th{
+  font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--t3);
+  padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--b0);
+  white-space:nowrap;cursor:pointer;user-select:none;text-align:right;
+}
+.prod-tbl th.l{text-align:left;}
+.prod-tbl th:hover{color:var(--t1);}
+.prod-tbl td{padding:7px 12px;border-bottom:1px solid var(--b0);font-size:10px;vertical-align:middle;}
+.prod-tbl tr:last-child td{border-bottom:none;}
+.prod-tbl tr:hover td{background:var(--bg);}
+.prod-tbl tr.selected td{background:var(--amber-lt);}
+.cat-tag{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:20px;border:1px solid;font-weight:600;}
+.inline-bar-wrap{display:flex;align-items:center;gap:6px;justify-content:flex-end;}
+.inline-bar{width:42px;height:5px;background:var(--b0);border-radius:2px;overflow:hidden;}
+.inline-bar-f{height:100%;border-radius:2px;}
+.max-badge{font-family:'JetBrains Mono',monospace;font-size:7px;padding:1px 5px;border-radius:20px;font-weight:700;margin-left:3px;}
+
+/* DISCLAIMER */
+.disclaimer{
+  background:var(--white);border:1px solid var(--b0);border-radius:var(--r-md);
+  padding:12px 16px;font-size:10px;color:var(--t3);line-height:1.8;
+  margin-top:24px;box-shadow:var(--shadow-xs);
+}
+.disclaimer strong{color:var(--t2);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--b1);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════════════════════ -->
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">⚡</div>
+    <div class="brand-text">
+      <div class="brand-name">CBAM Certificate Cost Calculator</div>
+      <div class="brand-sub">EU Regulation 2023/956 · Implementing Reg. 2025/2620</div>
+    </div>
+  </div>
+  <div class="topbar-pills">
+    <span class="t-pill">6 Countries</span>
+    <span class="t-pill">22 CN Codes</span>
+    <span class="t-pill">2025 – 2034</span>
+    <span class="t-pill hi">⚠ Indicative Only</span>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     HORIZONTAL CALCULATOR PANEL
+══════════════════════════════════════════════════════════ -->
+<div class="calc-panel">
+  <div class="calc-header">
+    <div class="calc-header-icon">🧮</div>
+    <div>
+      <div class="calc-header-title">CBAM Cost & Certificate Calculator</div>
+      <div class="calc-header-sub">Select parameters below — results update instantly</div>
+    </div>
+    <div class="calc-header-right">
+      <span class="reg-tag">Reg. EU 2025/2620 · CBAM Default Values</span>
+    </div>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="calc-inputs">
+    <div class="inp-grp">
+      <div class="inp-lbl">
+        <span class="inp-lbl-dot" style="background:#1A56DB"></span>
+        Exporting Country
+      </div>
+      <select id="sel-country"></select>
+    </div>
+    <div class="inp-grp">
+      <div class="inp-lbl">
+        <span class="inp-lbl-dot" style="background:#D97706"></span>
+        CN Code / Product
+      </div>
+      <select id="sel-cn"></select>
+    </div>
+    <div class="inp-grp">
+      <div class="inp-lbl">
+        <span class="inp-lbl-dot" style="background:#059669"></span>
+        CBAM Year
+      </div>
+      <select id="sel-year">
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+        <option value="2030">2030</option>
+        <option value="2031">2031</option>
+        <option value="2032">2032</option>
+        <option value="2033">2033</option>
+        <option value="2034">2034</option>
+      </select>
+    </div>
+    <div class="inp-grp">
+      <div class="inp-lbl">
+        <span class="inp-lbl-dot" style="background:#7C3AED"></span>
+        Quantity (t)
+      </div>
+      <input class="inp" type="number" id="inp-tonnes" value="100" min="1" max="1000000">
+    </div>
+    <div class="inp-grp">
+      <div class="inp-lbl">
+        <span class="inp-lbl-dot" style="background:#BE123C"></span>
+        ETS Price (€/t)
+      </div>
+      <input class="inp" type="number" id="inp-ets" value="85" min="1" max="500">
+    </div>
+    <div class="inp-grp">
+      <div class="inp-lbl" style="opacity:0">–</div>
+      <button class="calc-btn" onclick="calculate()">
+        ⚡ Calculate CBAM Cost
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="calc-results" id="calc-results">
+    <div class="res-card rc-amber">
+      <div class="rc-label">Net DE − Benchmark</div>
+      <div class="rc-value" id="rv-de">—</div>
+      <div class="rc-sub">tCO₂e per tonne</div>
+    </div>
+    <div class="res-card rc-red">
+      <div class="rc-label">💶 Cost per Tonne</div>
+      <div class="rc-value" id="rv-cpt">—</div>
+      <div class="rc-sub">€ per tonne of product</div>
+    </div>
+    <div class="res-card rc-red">
+      <div class="rc-label">💶 Total CBAM Cost</div>
+      <div class="rc-value" id="rv-total">—</div>
+      <div class="rc-sub" id="rv-total-sub">for selected quantity</div>
+    </div>
+    <div class="res-card rc-blue">
+      <div class="rc-label">📜 Certificates Required</div>
+      <div class="rc-value" id="rv-certs">—</div>
+      <div class="rc-sub">tCO₂e certificates total</div>
+    </div>
+    <div class="res-card rc-green">
+      <div class="rc-label">🏭 Free Allocation</div>
+      <div class="rc-value" id="rv-fa">—</div>
+      <div class="rc-sub" id="rv-fa-sub">for selected year</div>
+    </div>
+    <div class="res-card rc-formula">
+      <div class="rc-label">Formula Breakdown</div>
+      <div class="formula-lines" id="rv-formula">Select inputs above and click Calculate</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- ROW 1: Year Projection + Free Allocation -->
+  <div class="two-col sec">
+    <!-- Projection Table -->
+    <div class="card">
+      <div class="card-pad" style="padding-bottom:0">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Year-by-Year Projection</div>
+            <div class="sh-sub" id="proj-sub">Select inputs and calculate</div>
+          </div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="proj-tbl" id="proj-tbl">
+          <thead><tr>
+            <th class="l">Year</th>
+            <th>ETS €/t</th>
+            <th>Free Alloc</th>
+            <th>Net DE−BM</th>
+            <th>Cost / t</th>
+            <th>Total Cost</th>
+            <th>Certs (qty)</th>
+            <th>vs 2026</th>
+          </tr></thead>
+          <tbody id="proj-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--t4);font-family:'JetBrains Mono',monospace;font-size:11px">Select parameters above to generate projection</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Free Allocation + Line Chart -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Phase-out strip -->
+      <div class="card card-pad">
+        <div class="sh" style="margin-bottom:12px">
+          <div class="sh-title">Free Allocation Phase-out</div>
+          <div class="sh-sub">2025 → 2034 wind-down</div>
+        </div>
+        <div class="phase-grid" id="phase-grid"></div>
+      </div>
+      <!-- Line chart -->
+      <div class="chart-box">
+        <div class="sh" style="margin-bottom:12px">
+          <div class="sh-title">Cost Trajectory</div>
+          <div class="sh-sub" id="chart-sub">2025 – 2034 · selected product</div>
+        </div>
+        <div style="height:200px;position:relative">
+          <canvas id="lineChart" style="height:200px"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Country Comparison -->
+  <div class="sec">
+    <div class="sh">
+      <div class="sh-title">Country Comparison</div>
+      <div class="sh-sub" id="cc-sub">Same CN code & year — all 6 countries</div>
+    </div>
+    <div class="cc-grid" id="cc-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--t4);font-family:'JetBrains Mono',monospace;font-size:11px">
+        Calculate to see country comparison
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: All Products Bar Chart + Sector filter -->
+  <div class="sec">
+    <div class="sh">
+      <div>
+        <div class="sh-title" id="bar-title">All Products — CBAM Cost Ranking</div>
+        <div class="sh-sub" id="bar-sub">Selected country · ranked by total cost</div>
+      </div>
+      <div class="sh-r">
+        <div class="sector-bar" id="sector-bar"></div>
+      </div>
+    </div>
+    <div class="chart-box" style="padding:16px 18px">
+      <div style="height:360px;position:relative">
+        <canvas id="barChart" style="height:360px"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 4: Full Data Table -->
+  <div class="sec">
+    <div class="sh">
+      <div class="sh-title" id="tbl-title">All 22 Products — Complete Data Table</div>
+      <div class="sh-sub" id="tbl-sub">Click any row to load into calculator</div>
+    </div>
+    <div class="prod-tbl-wrap">
+      <div class="prod-tbl-filter">
+        <div class="sector-bar" id="tbl-sector-bar"></div>
+      </div>
+      <div class="prod-tbl-scroll">
+        <table class="prod-tbl" id="prod-tbl">
+          <thead id="prod-tbl-head"></thead>
+          <tbody id="prod-tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠ Disclaimer:</strong> This tool is for <strong>informational purposes only</strong> and is not legally binding.
+    The only legally valid values are those contained in <strong>Commission Implementing Regulation (EU) 2025/2620</strong>.
+    Formula: <em>CBAM Cost = (Direct Emissions − EU Benchmark × Free Allocation %) × ETS Price × Quantity</em>.
+    ETS prices shown are indicative estimates; enter your own price in the ETS Price field.
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// FULL DATA — 132 records, 6 countries × 22 CN codes
+// DE values: indices 0–9 = years 2025–2034
+// ════════════════════════════════════════════════════════════
+const RAW = [{"c":"India","cat":"Cement","cn":"25232100","desc":"White Portland cement","d":1.33,"i":0.14,"t":1.47,"de":[0.492475,0.779475,0.94795,1.1379,1.245275,1.468615,1.57599,1.683365,1.683365,1.911]},{"c":"India","cat":"Cement","cn":"25233000","desc":"Aluminous cement","d":2.05,"i":0.24,"t":2.29,"de":[1.350925,1.819925,2.06685,2.3317,2.421325,2.607745,2.69737,2.786995,2.786995,2.977]},{"c":"India","cat":"Fertilisers","cn":"28080000","desc":"Nitric acid; sulphonitric acids","d":1.94,"i":0.07,"t":2.01,"de":[1.37255,1.46265,1.4772,2.0892,2.16195,2.31327,2.38602,2.45877,2.45877,2.613]},{"c":"India","cat":"Fertilisers","cn":"28342100","desc":"Nitrate of potassium","d":1.86,"i":0.1,"t":1.96,"de":[1.24965,1.36925,1.3849,1.9846,2.06285,2.22561,2.30386,2.38211,2.38211,2.548]},{"c":"India","cat":"Fertilisers","cn":"31021012","desc":"Urea in aqueous solution, containing >45% nitrogen in relation to the weight of the dry product and containing =>31,8% but <=33,2 % by weight of urea (excl. that in packages with a gross weight of <= 10 kg)","d":0.68,"i":0.06,"t":0.74,"de":[0.3836,0.451,0.4586,0.6884,0.7264,0.80544,0.84344,0.88144,0.88144,0.962]},{"c":"India","cat":"Hydrogen","cn":"28041000","desc":"Hydrogen","d":14.03,"i":null,"t":14.03,"de":[9.068225,10.471225,12.00145,13.6589,14.295025,15.618165,16.25429,16.890415,16.890415,18.239]},{"c":"India","cat":"Aluminium","cn":"76011010","desc":"Unwrought aluminium","d":1.87,"i":null,"t":1.87,"de":[0.482575,0.669575,0.89215,1.1503,1.328175,1.698155,1.87603,2.053905,2.053905,2.431]},{"c":"India","cat":"Aluminium","cn":"76041010","desc":"Bars and rods","d":3.412513,"i":null,"t":3.412513,"de":[1.964638,2.305889,2.684265,3.099766,3.285391,3.671491,3.857116,4.042741,4.042741,4.436266]},{"c":"India","cat":"Aluminium","cn":"76169100","desc":"Aluminium wire","d":2.594,"i":null,"t":2.594,"de":[1.146125,1.405525,1.70205,2.0357,2.221325,2.607425,2.79305,2.978675,2.978675,3.3722]},{"c":"India","cat":"Aluminium","cn":"76061193","desc":"Aluminium plates, sheets and strip, of a thickness exceeding 0,2 mm","d":4.126038,"i":null,"t":4.126038,"de":[2.678163,3.090767,3.540496,4.027349,4.212974,4.599074,4.784699,4.970324,4.970324,5.363849]},{"c":"India","cat":"Iron and Steel","cn":"72011011","desc":"Pig iron and spiegeleisen, in pigs, blocks or other primary forms","d":2.53,"i":null,"t":2.53,"de":[1.35025,1.60325,1.8865,2.2,2.35125,2.66585,2.8171,2.96835,2.96835,3.289]},{"c":"India","cat":"Iron and Steel","cn":"72069000","desc":"Iron and non-alloy steel, in puddled bars or other primary forms (excl. ingots, remelted scrap ingots, continuous cast products, iron of heading 7203)","d":2.64,"i":null,"t":2.64,"de":[1.3842,1.6482,1.9444,2.2728,2.4338,2.76868,2.92968,3.09068,3.09068,3.432]},{"c":"India","cat":"Iron and Steel","cn":"72081000","desc":"Flat-rolled products of iron or non-alloy steel, of a width >= 600 mm, hot-rolled, not clad, plated or coated","d":4.28,"i":null,"t":4.28,"de":[2.94425,3.37225,3.8345,4.331,4.50225,4.85845,5.0297,5.20095,5.20095,5.564]},{"c":"India","cat":"Iron and Steel","cn":"72131000","desc":"Bars and rods of iron or non-alloy steel, hot-rolled, in irregularly wound coils","d":4.27,"i":null,"t":4.27,"de":[2.9401,3.3671,3.8282,4.3234,4.4939,4.84854,5.01904,5.18954,5.18954,5.551]},{"c":"India","cat":"Iron and Steel","cn":"72181000","desc":"Steel, stainless, in ingots and other primary forms (excl. waste and scrap in ingot form, and products obtained by continuous casting)","d":6.53,"i":null,"t":6.53,"de":[5.146475,5.799475,6.48795,7.2119,7.389275,7.758215,7.93559,8.112965,8.112965,8.489]},{"c":"India","cat":"Iron and Steel","cn":"72210010","desc":"Bars and rods of stainless steel, hot-rolled, in irregularly wound coils","d":6.48,"i":null,"t":6.48,"de":[5.285625,5.933625,6.61225,7.3215,7.474625,7.793125,7.94625,8.099375,8.099375,8.424]},{"c":"India","cat":"Iron and Steel","cn":"72281020","desc":"Bars and rods of high-speed steel, not further worked than hot-rolled, hot-drawn or extruded, and hot-rolled, hot-drawn or extruded, not further worked than clad (excl. semi-finished products, flat-rolled products and hot-rolled bars and rods in irregularly wound coils)","d":7.3,"i":null,"t":7.3,"de":[5.727325,6.457325,7.22765,8.0383,8.239925,8.659305,8.86093,9.062555,9.062555,9.49]},{"c":"India","cat":"Iron and Steel","cn":"73030010","desc":"Tubes, pipes and hollow profiles, of cast iron","d":2.84,"i":null,"t":2.84,"de":[1.3931,1.6771,1.9982,2.3564,2.5419,2.92774,3.11324,3.29874,3.29874,3.692]},{"c":"India","cat":"Iron and Steel","cn":"73071990","desc":"Cast tube or pipe fittings of steel","d":4.32,"i":null,"t":4.32,"de":[2.731725,3.163725,3.63645,4.1499,4.353525,4.777065,4.98069,5.184315,5.184315,5.616]},{"c":"India","cat":"Iron and Steel","cn":"73181100","desc":"Coach screws of iron or steel","d":4.27,"i":null,"t":4.27,"de":[2.9401,3.3671,3.8282,4.3234,4.4939,4.84854,5.01904,5.18954,5.18954,5.551]},{"c":"India","cat":"Iron and Steel","cn":"73181639","desc":"Nuts of iron or steel","d":5.14,"i":null,"t":5.14,"de":[4.01485,4.52885,5.0717,5.6434,5.78765,6.08769,6.23194,6.37619,6.37619,6.682]},{"c":"India","cat":"Iron and Steel","cn":"73269098","desc":"Articles of iron or steel, n.e.s.","d":4.91,"i":null,"t":4.91,"de":[3.456275,3.947275,4.47555,5.0411,5.227475,5.615135,5.80151,5.987885,5.987885,6.383]},{"c":"China","cat":"Cement","cn":"25232100","desc":"White Portland cement","d":1.25,"i":0.14,"t":1.39,"de":[0.412475,0.691475,0.85195,1.0339,1.141275,1.364615,1.47199,1.579365,1.579365,1.807]},{"c":"China","cat":"Cement","cn":"25233000","desc":"Aluminous cement","d":1.98,"i":0.2,"t":2.18,"de":[1.280925,1.698925,1.93485,2.1887,2.278325,2.464745,2.55437,2.643995,2.643995,2.834]},{"c":"China","cat":"Fertilisers","cn":"28080000","desc":"Nitric acid; sulphonitric acids","d":3.02,"i":0.06,"t":3.08,"de":[2.45255,2.54335,2.5579,2.587,2.65975,2.81107,2.88382,2.95657,2.95657,3.1108]},{"c":"China","cat":"Fertilisers","cn":"28342100","desc":"Nitrate of potassium","d":2.77,"i":0.09,"t":2.85,"de":[2.15965,2.26815,2.2838,2.3151,2.39335,2.55611,2.63436,2.71261,2.71261,2.8785]},{"c":"China","cat":"Fertilisers","cn":"31021012","desc":"Urea in aqueous solution, containing >45% nitrogen in relation to the weight of the dry product and containing =>31,8% but <=33,2 % by weight of urea (excl. that in packages with a gross weight of <= 10 kg)","d":0.9,"i":0.05,"t":0.94,"de":[0.6036,0.653,0.6606,0.6758,0.7138,0.79284,0.83084,0.86884,0.86884,0.9494]},{"c":"China","cat":"Hydrogen","cn":"28041000","desc":"Hydrogen","d":26.64,"i":null,"t":26.64,"de":[21.678225,24.342225,27.13345,30.0519,30.688025,32.011165,32.64729,33.283415,33.283415,34.632]},{"c":"China","cat":"Aluminium","cn":"76011010","desc":"Unwrought aluminium","d":3.0,"i":null,"t":3.0,"de":[1.612575,1.912575,2.24815,2.6193,2.797175,3.167155,3.34503,3.522905,3.522905,3.9]},{"c":"China","cat":"Aluminium","cn":"76041010","desc":"Bars and rods","d":4.8808,"i":null,"t":4.8808,"de":[3.432925,3.921005,4.44621,5.00854,5.194165,5.580265,5.76589,5.951515,5.951515,6.34504]},{"c":"China","cat":"Aluminium","cn":"76169100","desc":"Aluminium wire","d":4.8808,"i":null,"t":4.8808,"de":[3.432925,3.921005,4.44621,5.00854,5.194165,5.580265,5.76589,5.951515,5.951515,6.34504]},{"c":"China","cat":"Aluminium","cn":"76061193","desc":"Aluminium plates, sheets and strip, of a thickness exceeding 0,2 mm","d":4.12,"i":null,"t":4.12,"de":[2.672125,3.084125,3.53325,4.0195,4.205125,4.591225,4.77685,4.962475,4.962475,5.356]},{"c":"China","cat":"Iron and Steel","cn":"72011011","desc":"Pig iron and spiegeleisen, in pigs, blocks or other primary forms","d":1.66,"i":null,"t":1.66,"de":[0.48025,0.64625,0.8425,1.069,1.22025,1.53485,1.6861,1.83735,1.83735,2.158]},{"c":"China","cat":"Iron and Steel","cn":"72069000","desc":"Iron and non-alloy steel, in puddled bars or other primary forms (excl. ingots, remelted scrap ingots, continuous cast products, iron of heading 7203)","d":1.74,"i":null,"t":1.74,"de":[0.4842,0.6582,0.8644,1.1028,1.2638,1.59868,1.75968,1.92068,1.92068,2.262]},{"c":"China","cat":"Iron and Steel","cn":"72081000","desc":"Flat-rolled products of iron or non-alloy steel, of a width >= 600 mm, hot-rolled, not clad, plated or coated","d":3.186893,"i":null,"t":3.186893,"de":[1.851143,2.169832,2.522771,2.90996,3.08121,3.43741,3.60866,3.77991,3.77991,4.14296]},{"c":"China","cat":"Iron and Steel","cn":"72131000","desc":"Bars and rods of iron or non-alloy steel, hot-rolled, in irregularly wound coils","d":3.168785,"i":null,"t":3.168785,"de":[1.838885,2.155764,2.506742,2.891821,3.062321,3.416961,3.587461,3.757961,3.757961,4.119421]},{"c":"China","cat":"Iron and Steel","cn":"72181000","desc":"Steel, stainless, in ingots and other primary forms (excl. waste and scrap in ingot form, and products obtained by continuous casting)","d":5.65,"i":null,"t":5.65,"de":[4.266475,4.831475,5.43195,6.0679,6.245275,6.614215,6.79159,6.968965,6.968965,7.345]},{"c":"China","cat":"Iron and Steel","cn":"72210010","desc":"Bars and rods of stainless steel, hot-rolled, in irregularly wound coils","d":5.59,"i":null,"t":5.59,"de":[4.395625,4.954625,5.54425,6.1645,6.317625,6.636125,6.78925,6.942375,6.942375,7.267]},{"c":"China","cat":"Iron and Steel","cn":"72281020","desc":"Bars and rods of high-speed steel, not further worked than hot-rolled, hot-drawn or extruded, and hot-rolled, hot-drawn or extruded, not further worked than clad (excl. semi-finished products, flat-rolled products and hot-rolled bars and rods in irregularly wound coils)","d":6.12,"i":null,"t":6.12,"de":[4.547325,5.159325,5.81165,6.5043,6.705925,7.125305,7.32693,7.528555,7.528555,7.956]},{"c":"China","cat":"Iron and Steel","cn":"73030010","desc":"Tubes, pipes and hollow profiles, of cast iron","d":2.191,"i":null,"t":2.191,"de":[0.7441,0.9632,1.2194,1.5127,1.6982,2.08404,2.26954,2.45504,2.45504,2.8483]},{"c":"China","cat":"Iron and Steel","cn":"73071990","desc":"Cast tube or pipe fittings of steel","d":3.252,"i":null,"t":3.252,"de":[1.663725,1.988925,2.35485,2.7615,2.965125,3.388665,3.59229,3.795915,3.795915,4.2276]},{"c":"China","cat":"Iron and Steel","cn":"73181100","desc":"Coach screws of iron or steel","d":2.738,"i":null,"t":2.738,"de":[1.4081,1.6819,1.9898,2.3318,2.5023,2.85694,3.02744,3.19794,3.19794,3.5594]},{"c":"China","cat":"Iron and Steel","cn":"73181639","desc":"Nuts of iron or steel","d":5.045,"i":null,"t":5.045,"de":[3.91985,4.42435,4.9577,5.5199,5.66415,5.96419,6.10844,6.25269,6.25269,6.5585]},{"c":"China","cat":"Iron and Steel","cn":"73269098","desc":"Articles of iron or steel, n.e.s.","d":3.076,"i":null,"t":3.076,"de":[1.622275,1.929875,2.27475,2.6569,2.843275,3.230935,3.41731,3.603685,3.603685,3.9988]},{"c":"Turkey","cat":"Cement","cn":"25232100","desc":"White Portland cement","d":null,"i":null,"t":null,"de":[null,null,null,null,null,null,null,null,null,null]},{"c":"Turkey","cat":"Cement","cn":"25233000","desc":"Aluminous cement","d":1.82,"i":0.14,"t":1.95,"de":[1.120925,1.445925,1.65885,1.8897,1.979325,2.165745,2.25537,2.344995,2.344995,2.535]},{"c":"Turkey","cat":"Fertilisers","cn":"28080000","desc":"Nitric acid; sulphonitric acids","d":2.68,"i":0.03,"t":2.72,"de":[2.11255,2.17975,2.1943,2.2234,2.29615,2.44747,2.52022,2.59297,2.59297,2.7472]},{"c":"Turkey","cat":"Fertilisers","cn":"28342100","desc":"Nitrate of potassium","d":2.17,"i":0.05,"t":2.22,"de":[1.55965,1.63185,1.6475,1.6788,1.75705,1.91981,1.99806,2.07631,2.07631,2.2422]},{"c":"Turkey","cat":"Fertilisers","cn":"31021012","desc":"Urea in aqueous solution, containing >45% nitrogen in relation to the weight of the dry product and containing =>31,8% but <=33,2 % by weight of urea (excl. that in packages with a gross weight of <= 10 kg)","d":0.48,"i":0.02,"t":0.5,"de":[0.1836,0.2086,0.2162,0.2314,0.2694,0.34844,0.38644,0.42444,0.42444,0.505]},{"c":"Turkey","cat":"Hydrogen","cn":"28041000","desc":"Hydrogen","d":10.82,"i":null,"t":10.82,"de":[5.858225,6.940225,8.14945,9.4859,10.122025,11.445165,12.08129,12.717415,12.717415,14.066]},{"c":"Turkey","cat":"Aluminium","cn":"76011010","desc":"Unwrought aluminium","d":1.7,"i":null,"t":1.7,"de":[0.312575,0.482575,0.68815,0.9293,1.107175,1.477155,1.65503,1.832905,1.832905,2.21]},{"c":"Turkey","cat":"Aluminium","cn":"76041010","desc":"Bars and rods","d":3.7414,"i":null,"t":3.7414,"de":[2.293525,2.667665,3.07893,3.52732,3.712945,4.099045,4.28467,4.470295,4.470295,4.86382]},{"c":"Turkey","cat":"Aluminium","cn":"76169100","desc":"Aluminium wire","d":3.4238,"i":null,"t":3.4238,"de":[1.975925,2.318305,2.69781,3.11444,3.300065,3.686165,3.87179,4.057415,4.057415,4.45094]},{"c":"Turkey","cat":"Aluminium","cn":"76061193","desc":"Aluminium plates, sheets and strip, of a thickness exceeding 0,2 mm","d":2.714,"i":null,"t":2.714,"de":[1.266125,1.537525,1.84605,2.1917,2.377325,2.763425,2.94905,3.134675,3.134675,3.5282]},{"c":"Turkey","cat":"Iron and Steel","cn":"72011011","desc":"Pig iron and spiegeleisen, in pigs, blocks or other primary forms","d":1.85,"i":null,"t":1.85,"de":[0.67025,0.85525,1.0705,1.316,1.46725,1.78185,1.9331,2.08435,2.08435,2.405]},{"c":"Turkey","cat":"Iron and Steel","cn":"72069000","desc":"Iron and non-alloy steel, in puddled bars or other primary forms (excl. ingots, remelted scrap ingots, continuous cast products, iron of heading 7203)","d":1.96,"i":null,"t":1.96,"de":[0.7042,0.9002,1.1284,1.3888,1.5498,1.88468,2.04568,2.20668,2.20668,2.548]},{"c":"Turkey","cat":"Iron and Steel","cn":"72081000","desc":"Flat-rolled products of iron or non-alloy steel, of a width >= 600 mm, hot-rolled, not clad, plated or coated","d":2.427512,"i":null,"t":2.427512,"de":[1.091762,1.334513,1.611514,1.922765,2.094015,2.450215,2.621465,2.792715,2.792715,3.155765]},{"c":"Turkey","cat":"Iron and Steel","cn":"72131000","desc":"Bars and rods of iron or non-alloy steel, hot-rolled, in irregularly wound coils","d":2.309671,"i":null,"t":2.309671,"de":[0.979771,1.210738,1.475806,1.774973,1.945473,2.300113,2.470613,2.641113,2.641113,3.002573]},{"c":"Turkey","cat":"Iron and Steel","cn":"72181000","desc":"Steel, stainless, in ingots and other primary forms (excl. waste and scrap in ingot form, and products obtained by continuous casting)","d":5.97,"i":null,"t":5.97,"de":[4.586475,5.183475,5.81595,6.4839,6.661275,7.030215,7.20759,7.384965,7.384965,7.761]},{"c":"Turkey","cat":"Iron and Steel","cn":"72210010","desc":"Bars and rods of stainless steel, hot-rolled, in irregularly wound coils","d":5.31,"i":null,"t":5.31,"de":[4.115625,4.646625,5.20825,5.8005,5.953625,6.272125,6.42525,6.578375,6.578375,6.903]},{"c":"Turkey","cat":"Iron and Steel","cn":"72281020","desc":"Bars and rods of high-speed steel, not further worked than hot-rolled, hot-drawn or extruded, and hot-rolled, hot-drawn or extruded, not further worked than clad (excl. semi-finished products, flat-rolled products and hot-rolled bars and rods in irregularly wound coils)","d":6.29,"i":null,"t":6.29,"de":[4.717325,5.346325,6.01565,6.7253,6.926925,7.346305,7.54793,7.749555,7.749555,8.177]},{"c":"Turkey","cat":"Iron and Steel","cn":"73030010","desc":"Tubes, pipes and hollow profiles, of cast iron","d":2.48,"i":null,"t":2.48,"de":[1.0331,1.2811,1.5662,1.8884,2.0739,2.45974,2.64524,2.83074,2.83074,3.224]},{"c":"Turkey","cat":"Iron and Steel","cn":"73071990","desc":"Cast tube or pipe fittings of steel","d":3.151,"i":null,"t":3.151,"de":[1.562725,1.877825,2.23365,2.6302,2.833825,3.257365,3.46099,3.664615,3.664615,4.0963]},{"c":"Turkey","cat":"Iron and Steel","cn":"73181100","desc":"Coach screws of iron or steel","d":2.832,"i":null,"t":2.832,"de":[1.5021,1.7853,2.1026,2.454,2.6245,2.97914,3.14964,3.32014,3.32014,3.6816]},{"c":"Turkey","cat":"Iron and Steel","cn":"73181639","desc":"Nuts of iron or steel","d":3.79,"i":null,"t":3.79,"de":[2.66485,3.04385,3.4517,3.8884,4.03265,4.33269,4.47694,4.62119,4.62119,4.927]},{"c":"Turkey","cat":"Iron and Steel","cn":"73269098","desc":"Articles of iron or steel, n.e.s.","d":2.5831,"i":null,"t":2.5831,"de":[1.129375,1.387685,1.68327,2.01613,2.202505,2.590165,2.77654,2.962915,2.962915,3.35803]},{"c":"UK","cat":"Cement","cn":"25232100","desc":"White Portland cement","d":null,"i":null,"t":null,"de":[null,null,null,null,null,null,null,null,null,null]},{"c":"UK","cat":"Cement","cn":"25233000","desc":"Aluminous cement","d":null,"i":null,"t":null,"de":[null,null,null,null,null,null,null,null,null,null]},{"c":"UK","cat":"Fertilisers","cn":"28080000","desc":"Nitric acid; sulphonitric acids","d":0.72,"i":0.03,"t":0.75,"de":[0.15255,0.19005,0.2046,0.2337,0.30645,0.45777,0.53052,0.60327,0.60327,0.7575]},{"c":"UK","cat":"Fertilisers","cn":"28342100","desc":"Nitrate of potassium","d":0.83,"i":0.04,"t":0.87,"de":[0.21965,0.26835,0.284,0.3153,0.39355,0.55631,0.63456,0.71281,0.71281,0.8787]},{"c":"UK","cat":"Fertilisers","cn":"31021012","desc":"Urea in aqueous solution, containing >45% nitrogen in relation to the weight of the dry product and containing =>31,8% but <=33,2 % by weight of urea (excl. that in packages with a gross weight of <= 10 kg)","d":0.4,"i":0.02,"t":0.42,"de":[0.1036,0.1278,0.1354,0.1506,0.1886,0.26764,0.30564,0.34364,0.34364,0.4242]},{"c":"UK","cat":"Hydrogen","cn":"28041000","desc":"Hydrogen","d":10.82,"i":null,"t":10.82,"de":[5.858225,6.940225,8.14945,9.4859,10.122025,11.445165,12.08129,12.717415,12.717415,14.066]},{"c":"UK","cat":"Aluminium","cn":"76011010","desc":"Unwrought aluminium","d":1.87,"i":null,"t":1.87,"de":[0.482575,0.669575,0.89215,1.1503,1.328175,1.698155,1.87603,2.053905,2.053905,2.431]},{"c":"UK","cat":"Aluminium","cn":"76041010","desc":"Bars and rods","d":2.15,"i":null,"t":2.15,"de":[0.702125,0.917125,1.16925,1.4585,1.644125,2.030225,2.21585,2.401475,2.401475,2.795]},{"c":"UK","cat":"Aluminium","cn":"76169100","desc":"Aluminium wire","d":2.15,"i":null,"t":2.15,"de":[0.702125,0.917125,1.16925,1.4585,1.644125,2.030225,2.21585,2.401475,2.401475,2.795]},{"c":"UK","cat":"Aluminium","cn":"76061193","desc":"Aluminium plates, sheets and strip, of a thickness exceeding 0,2 mm","d":2.61,"i":null,"t":2.61,"de":[1.162125,1.423125,1.72125,2.0565,2.242125,2.628225,2.81385,2.999475,2.999475,3.393]},{"c":"UK","cat":"Iron and Steel","cn":"72011011","desc":"Pig iron and spiegeleisen, in pigs, blocks or other primary forms","d":2.17,"i":null,"t":2.17,"de":[0.99025,1.20725,1.4545,1.732,1.88325,2.19785,2.3491,2.50035,2.50035,2.821]},{"c":"UK","cat":"Iron and Steel","cn":"72069000","desc":"Iron and non-alloy steel, in puddled bars or other primary forms (excl. ingots, remelted scrap ingots, continuous cast products, iron of heading 7203)","d":2.31,"i":null,"t":2.31,"de":[1.0542,1.2852,1.5484,1.8438,2.0048,2.33968,2.50068,2.66168,2.66168,3.003]},{"c":"UK","cat":"Iron and Steel","cn":"72081000","desc":"Flat-rolled products of iron or non-alloy steel, of a width >= 600 mm, hot-rolled, not clad, plated or coated","d":2.42,"i":null,"t":2.42,"de":[1.08425,1.32625,1.6025,1.913,2.08425,2.44045,2.6117,2.78295,2.78295,3.146]},{"c":"UK","cat":"Iron and Steel","cn":"72131000","desc":"Bars and rods of iron or non-alloy steel, hot-rolled, in irregularly wound coils","d":2.31,"i":null,"t":2.31,"de":[0.9801,1.2111,1.4762,1.7754,1.9459,2.30054,2.47104,2.64154,2.64154,3.003]},{"c":"UK","cat":"Iron and Steel","cn":"72181000","desc":"Steel, stainless, in ingots and other primary forms (excl. waste and scrap in ingot form, and products obtained by continuous casting)","d":3.84,"i":null,"t":3.84,"de":[2.456475,2.840475,3.25995,3.7149,3.892275,4.261215,4.43859,4.615965,4.615965,4.992]},{"c":"UK","cat":"Iron and Steel","cn":"72210010","desc":"Bars and rods of stainless steel, hot-rolled, in irregularly wound coils","d":3.11,"i":null,"t":3.11,"de":[1.915625,2.226625,2.56825,2.9405,3.093625,3.412125,3.56525,3.718375,3.718375,4.043]},{"c":"UK","cat":"Iron and Steel","cn":"72281020","desc":"Bars and rods of high-speed steel, not further worked than hot-rolled, hot-drawn or extruded, and hot-rolled, hot-drawn or extruded, not further worked than clad (excl. semi-finished products, flat-rolled products and hot-rolled bars and rods in irregularly wound coils)","d":3.44,"i":null,"t":3.44,"de":[1.867325,2.211325,2.59565,3.0203,3.221925,3.641305,3.84293,4.044555,4.044555,4.472]},{"c":"UK","cat":"Iron and Steel","cn":"73030010","desc":"Tubes, pipes and hollow profiles, of cast iron","d":2.73,"i":null,"t":2.73,"de":[1.2831,1.5561,1.8662,2.2134,2.3989,2.78474,2.97024,3.15574,3.15574,3.549]},{"c":"UK","cat":"Iron and Steel","cn":"73071990","desc":"Cast tube or pipe fittings of steel","d":3.04,"i":null,"t":3.04,"de":[1.451725,1.755725,2.10045,2.4859,2.689525,3.113065,3.31669,3.520315,3.520315,3.952]},{"c":"UK","cat":"Iron and Steel","cn":"73181100","desc":"Coach screws of iron or steel","d":2.31,"i":null,"t":2.31,"de":[0.9801,1.2111,1.4762,1.7754,1.9459,2.30054,2.47104,2.64154,2.64154,3.003]},{"c":"UK","cat":"Iron and Steel","cn":"73181639","desc":"Nuts of iron or steel","d":2.98,"i":null,"t":2.98,"de":[1.85485,2.15285,2.4797,2.8354,2.97965,3.27969,3.42394,3.56819,3.56819,3.874]},{"c":"UK","cat":"Iron and Steel","cn":"73269098","desc":"Articles of iron or steel, n.e.s.","d":2.5,"i":null,"t":2.5,"de":[1.046275,1.296275,1.58355,1.9081,2.094475,2.482135,2.66851,2.854885,2.854885,3.25]},{"c":"USA","cat":"Cement","cn":"25232100","desc":"White Portland cement","d":1.24,"i":0.14,"t":1.38,"de":[0.402475,0.680475,0.83995,1.0209,1.128275,1.351615,1.45899,1.566365,1.566365,1.794]},{"c":"USA","cat":"Cement","cn":"25233000","desc":"Aluminous cement","d":1.8,"i":0.14,"t":1.94,"de":[1.100925,1.434925,1.64685,1.8767,1.966325,2.152745,2.24237,2.331995,2.331995,2.522]},{"c":"USA","cat":"Fertilisers","cn":"28080000","desc":"Nitric acid; sulphonitric acids","d":1.87,"i":0.03,"t":1.9,"de":[1.30255,1.35155,1.3661,1.3952,1.46795,1.61927,1.69202,1.76477,1.76477,1.919]},{"c":"USA","cat":"Fertilisers","cn":"28342100","desc":"Nitrate of potassium","d":1.86,"i":0.04,"t":1.91,"de":[1.24965,1.31875,1.3344,1.3657,1.44395,1.60671,1.68496,1.76321,1.76321,1.9291]},{"c":"USA","cat":"Fertilisers","cn":"31021012","desc":"Urea in aqueous solution, containing >45% nitrogen in relation to the weight of the dry product and containing =>31,8% but <=33,2 % by weight of urea (excl. that in packages with a gross weight of <= 10 kg)","d":0.74,"i":0.02,"t":0.76,"de":[0.4436,0.4712,0.4788,0.494,0.532,0.61104,0.64904,0.68704,0.68704,0.7676]},{"c":"USA","cat":"Hydrogen","cn":"28041000","desc":"Hydrogen","d":26.64,"i":null,"t":26.64,"de":[21.678225,24.342225,27.13345,30.0519,30.688025,32.011165,32.64729,33.283415,33.283415,34.632]},{"c":"USA","cat":"Aluminium","cn":"76011010","desc":"Unwrought aluminium","d":1.7,"i":null,"t":1.7,"de":[0.312575,0.482575,0.68815,0.9293,1.107175,1.477155,1.65503,1.832905,1.832905,2.21]},{"c":"USA","cat":"Aluminium","cn":"76041010","desc":"Bars and rods","d":2.257895,"i":null,"t":2.257895,"de":[0.81002,1.035809,1.298724,1.598763,1.784388,2.170488,2.356113,2.541738,2.541738,2.935263]},{"c":"USA","cat":"Aluminium","cn":"76169100","desc":"Aluminium wire","d":2.257895,"i":null,"t":2.257895,"de":[0.81002,1.035809,1.298724,1.598763,1.784388,2.170488,2.356113,2.541738,2.541738,2.935263]},{"c":"USA","cat":"Aluminium","cn":"76061193","desc":"Aluminium plates, sheets and strip, of a thickness exceeding 0,2 mm","d":2.73,"i":null,"t":2.73,"de":[1.282125,1.555125,1.86525,2.2125,2.398125,2.784225,2.96985,3.155475,3.155475,3.549]},{"c":"USA","cat":"Iron and Steel","cn":"72011011","desc":"Pig iron and spiegeleisen, in pigs, blocks or other primary forms","d":1.21,"i":null,"t":1.21,"de":[0.03025,0.15125,0.3025,0.484,0.63525,0.94985,1.1011,1.25235,1.25235,1.573]},{"c":"USA","cat":"Iron and Steel","cn":"72069000","desc":"Iron and non-alloy steel, in puddled bars or other primary forms (excl. ingots, remelted scrap ingots, continuous cast products, iron of heading 7203)","d":1.33,"i":null,"t":1.33,"de":[0.0742,0.2072,0.3724,0.5698,0.7308,1.06568,1.22668,1.38768,1.38768,1.729]},{"c":"USA","cat":"Iron and Steel","cn":"72081000","desc":"Flat-rolled products of iron or non-alloy steel, of a width >= 600 mm, hot-rolled, not clad, plated or coated","d":1.4,"i":null,"t":1.4,"de":[0.06425,0.20425,0.3785,0.587,0.75825,1.11445,1.2857,1.45695,1.45695,1.82]},{"c":"USA","cat":"Iron and Steel","cn":"72131000","desc":"Bars and rods of iron or non-alloy steel, hot-rolled, in irregularly wound coils","d":1.39,"i":null,"t":1.39,"de":[0.0601,0.1991,0.3722,0.5794,0.7499,1.10454,1.27504,1.44554,1.44554,1.807]},{"c":"USA","cat":"Iron and Steel","cn":"72181000","desc":"Steel, stainless, in ingots and other primary forms (excl. waste and scrap in ingot form, and products obtained by continuous casting)","d":3.11,"i":null,"t":3.11,"de":[1.726475,2.037475,2.38395,2.7659,2.943275,3.312215,3.48959,3.666965,3.666965,4.043]},{"c":"USA","cat":"Iron and Steel","cn":"72210010","desc":"Bars and rods of stainless steel, hot-rolled, in irregularly wound coils","d":3.27,"i":null,"t":3.27,"de":[2.075625,2.402625,2.76025,3.1485,3.301625,3.620125,3.77325,3.926375,3.926375,4.251]},{"c":"USA","cat":"Iron and Steel","cn":"72281020","desc":"Bars and rods of high-speed steel, not further worked than hot-rolled, hot-drawn or extruded, and hot-rolled, hot-drawn or extruded, not further worked than clad (excl. semi-finished products, flat-rolled products and hot-rolled bars and rods in irregularly wound coils)","d":3.64,"i":null,"t":3.64,"de":[2.067325,2.431325,2.83565,3.2803,3.481925,3.901305,4.10293,4.304555,4.304555,4.732]},{"c":"USA","cat":"Iron and Steel","cn":"73030010","desc":"Tubes, pipes and hollow profiles, of cast iron","d":1.85,"i":null,"t":1.85,"de":[0.4031,0.5881,0.8102,1.0694,1.2549,1.64074,1.82624,2.01174,2.01174,2.405]},{"c":"USA","cat":"Iron and Steel","cn":"73071990","desc":"Cast tube or pipe fittings of steel","d":1.33,"i":null,"t":1.33,"de":[-0.258275,-0.125275,0.04845,0.2629,0.466525,0.890065,1.09369,1.297315,1.297315,1.729]},{"c":"USA","cat":"Iron and Steel","cn":"73181100","desc":"Coach screws of iron or steel","d":1.39,"i":null,"t":1.39,"de":[0.0601,0.1991,0.3722,0.5794,0.7499,1.10454,1.27504,1.44554,1.44554,1.807]},{"c":"USA","cat":"Iron and Steel","cn":"73181639","desc":"Nuts of iron or steel","d":3.03,"i":null,"t":3.03,"de":[1.90485,2.20785,2.5397,2.9004,3.04465,3.34469,3.48894,3.63319,3.63319,3.939]},{"c":"USA","cat":"Iron and Steel","cn":"73269098","desc":"Articles of iron or steel, n.e.s.","d":1.44,"i":null,"t":1.44,"de":[-0.013725,0.130275,0.31155,0.5301,0.716475,1.104135,1.29051,1.476885,1.476885,1.872]},{"c":"Russia","cat":"Cement","cn":"25232100","desc":"White Portland cement","d":0.0,"i":0.13,"t":1.44,"de":[-0.837525,0.746475,0.91195,1.0989,1.206275,1.429615,1.53699,1.644365,1.644365,1.872]},{"c":"Russia","cat":"Cement","cn":"25233000","desc":"Aluminous cement","d":null,"i":null,"t":null,"de":[null,null,null,null,null,null,null,null,null,null]},{"c":"Russia","cat":"Fertilisers","cn":"28080000","desc":"Nitric acid; sulphonitric acids","d":2.7,"i":0.03,"t":2.73,"de":[2.13255,2.18985,2.2044,2.2335,2.30625,2.45757,2.53032,2.60307,2.60307,2.7573]},{"c":"Russia","cat":"Fertilisers","cn":"28342100","desc":"Nitrate of potassium","d":2.17,"i":0.04,"t":2.22,"de":[1.55965,1.63185,1.6475,1.6788,1.75705,1.91981,1.99806,2.07631,2.07631,2.2422]},{"c":"Russia","cat":"Fertilisers","cn":"31021012","desc":"Urea in aqueous solution, containing >45% nitrogen in relation to the weight of the dry product and containing =>31,8% but <=33,2 % by weight of urea (excl. that in packages with a gross weight of <= 10 kg)","d":0.46,"i":0.02,"t":0.49,"de":[0.1636,0.1985,0.2061,0.2213,0.2593,0.33834,0.37634,0.41434,0.41434,0.4949]},{"c":"Russia","cat":"Hydrogen","cn":"28041000","desc":"Hydrogen","d":10.82,"i":null,"t":10.82,"de":[5.858225,6.940225,8.14945,9.4859,10.122025,11.445165,12.08129,12.717415,12.717415,14.066]},{"c":"Russia","cat":"Aluminium","cn":"76011010","desc":"Unwrought aluminium","d":2.16,"i":null,"t":2.16,"de":[0.772575,0.988575,1.24015,1.5273,1.705175,2.075155,2.25303,2.430905,2.430905,2.808]},{"c":"Russia","cat":"Aluminium","cn":"76041010","desc":"Bars and rods","d":2.49,"i":null,"t":2.49,"de":[1.042125,1.291125,1.57725,1.9005,2.086125,2.472225,2.65785,2.843475,2.843475,3.237]},{"c":"Russia","cat":"Aluminium","cn":"76169100","desc":"Aluminium wire","d":2.49,"i":null,"t":2.49,"de":[1.042125,1.291125,1.57725,1.9005,2.086125,2.472225,2.65785,2.843475,2.843475,3.237]},{"c":"Russia","cat":"Aluminium","cn":"76061193","desc":"Aluminium plates, sheets and strip, of a thickness exceeding 0,2 mm","d":2.95,"i":null,"t":2.95,"de":[1.502125,1.797125,2.12925,2.4985,2.684125,3.070225,3.25585,3.441475,3.441475,3.835]},{"c":"Russia","cat":"Iron and Steel","cn":"72011011","desc":"Pig iron and spiegeleisen, in pigs, blocks or other primary forms","d":3.04,"i":null,"t":3.04,"de":[1.86025,2.16425,2.4985,2.863,3.01425,3.32885,3.4801,3.63135,3.63135,3.952]},{"c":"Russia","cat":"Iron and Steel","cn":"72069000","desc":"Iron and non-alloy steel, in puddled bars or other primary forms (excl. ingots, remelted scrap ingots, continuous cast products, iron of heading 7203)","d":3.21,"i":null,"t":3.21,"de":[1.9542,2.2752,2.6284,3.0138,3.1748,3.50968,3.67068,3.83168,3.83168,4.173]},{"c":"Russia","cat":"Iron and Steel","cn":"72081000","desc":"Flat-rolled products of iron or non-alloy steel, of a width >= 600 mm, hot-rolled, not clad, plated or coated","d":3.43,"i":null,"t":3.43,"de":[2.09425,2.43725,2.8145,3.226,3.39725,3.75345,3.9247,4.09595,4.09595,4.459]},{"c":"Russia","cat":"Iron and Steel","cn":"72131000","desc":"Bars and rods of iron or non-alloy steel, hot-rolled, in irregularly wound coils","d":3.21,"i":null,"t":3.21,"de":[1.8801,2.2011,2.5562,2.9454,3.1159,3.47054,3.64104,3.81154,3.81154,4.173]},{"c":"Russia","cat":"Iron and Steel","cn":"72181000","desc":"Steel, stainless, in ingots and other primary forms (excl. waste and scrap in ingot form, and products obtained by continuous casting)","d":3.18,"i":null,"t":3.18,"de":[1.796475,2.114475,2.46795,2.8569,3.034275,3.403215,3.58059,3.757965,3.757965,4.134]},{"c":"Russia","cat":"Iron and Steel","cn":"72210010","desc":"Bars and rods of stainless steel, hot-rolled, in irregularly wound coils","d":3.18,"i":null,"t":3.18,"de":[1.985625,2.303625,2.65225,3.0315,3.184625,3.503125,3.65625,3.809375,3.809375,4.134]},{"c":"Russia","cat":"Iron and Steel","cn":"72281020","desc":"Bars and rods of high-speed steel, not further worked than hot-rolled, hot-drawn or extruded, and hot-rolled, hot-drawn or extruded, not further worked than clad (excl. semi-finished products, flat-rolled products and hot-rolled bars and rods in irregularly wound coils)","d":3.46,"i":null,"t":3.46,"de":[1.887325,2.233325,2.61965,3.0463,3.247925,3.667305,3.86893,4.070555,4.070555,4.498]},{"c":"Russia","cat":"Iron and Steel","cn":"73030010","desc":"Tubes, pipes and hollow profiles, of cast iron","d":6.96,"i":null,"t":6.96,"de":[5.5131,6.2091,6.9422,7.7124,7.8979,8.28374,8.46924,8.65474,8.65474,9.048]},{"c":"Russia","cat":"Iron and Steel","cn":"73071990","desc":"Cast tube or pipe fittings of steel","d":3.21,"i":null,"t":3.21,"de":[1.621725,1.942725,2.30445,2.7069,2.910525,3.334065,3.53769,3.741315,3.741315,4.173]},{"c":"Russia","cat":"Iron and Steel","cn":"73181100","desc":"Coach screws of iron or steel","d":3.21,"i":null,"t":3.21,"de":[1.8801,2.2011,2.5562,2.9454,3.1159,3.47054,3.64104,3.81154,3.81154,4.173]},{"c":"Russia","cat":"Iron and Steel","cn":"73181639","desc":"Nuts of iron or steel","d":3.21,"i":null,"t":3.21,"de":[2.08485,2.40585,2.7557,3.1344,3.27865,3.57869,3.72294,3.86719,3.86719,4.173]},{"c":"Russia","cat":"Iron and Steel","cn":"73269098","desc":"Articles of iron or steel, n.e.s.","d":3.59,"i":null,"t":3.59,"de":[2.136275,2.495275,2.89155,3.3251,3.511475,3.899135,4.08551,4.271885,4.271885,4.667]}];
+
+const YEARS = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034];
+const ETS_DEF = {2025:75,2026:85,2027:90,2028:95,2029:100,2030:100,2031:100,2032:100,2033:100,2034:100};
+const FA = {2025:1.00,2026:0.975,2027:0.95,2028:0.90,2029:0.775,
+            2030:0.515,2031:0.39,2032:0.265,2033:0.265,2034:0.00};
+const FA_LBL = {2025:'100%',2026:'97.5%',2027:'95%',2028:'90%',2029:'77.5%',
+                2030:'51.5%',2031:'39%',2032:'26.5%',2033:'26.5%',2034:'0%'};
+
+const CAT_C = {
+  'Cement':'#7C3AED','Fertilisers':'#059669','Hydrogen':'#0284C7',
+  'Aluminium':'#D97706','Iron and Steel':'#DC2626'
+};
+const CTRY_C = {
+  'India':'#B45309','China':'#DC2626','Turkey':'#059669',
+  'UK':'#1A56DB','USA':'#BE123C','Russia':'#6D28D9'
+};
+const CTRY_F = {
+  'India':'🇮🇳','China':'🇨🇳','Turkey':'🇹🇷',
+  'UK':'🇬🇧','USA':'🇺🇸','Russia':'🇷🇺'
+};
+const COUNTRIES = ['India','China','Turkey','UK','USA','Russia'];
+
+// Pre-build lookup map for O(1) access
+const LOOKUP = new Map();
+RAW.forEach(r => {
+  LOOKUP.set(`${r.c}|${r.cn}`, r);
+});
+
+function find(country, cn) {
+  return LOOKUP.get(`${country}|${cn}`) || null;
+}
+function getDe(country, cn, yr) {
+  const r = find(country, cn);
+  if(!r) return null;
+  const v = r.de[YEARS.indexOf(yr)];
+  return (v !== null && v !== undefined) ? v : null;
+}
+
+// Helpers
+const Y2I = yr => YEARS.indexOf(yr);
+function hexA(hex,a){
+  if(!hex||hex.length<6) return `rgba(128,128,128,${a})`;
+  const r=parseInt(hex.replace('#','').slice(0,2),16);
+  const g=parseInt(hex.replace('#','').slice(2,4),16);
+  const b=parseInt(hex.replace('#','').slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+// International standard: comma = thousands separator, period = decimal (e.g. €1,234,567.89)
+const fmtE = v => {
+  if(v===null||v===undefined||isNaN(v)) return '—';
+  return '€' + Math.round(v).toLocaleString('en-US');
+};
+const fmtE2 = v => {
+  if(v===null||v===undefined||isNaN(v)) return '—';
+  return '€' + Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+};
+const fmtEk = v => {
+  if(v===null||v===undefined||isNaN(v)) return '—';
+  if(Math.abs(v) >= 1000000) return '€' + (v/1000000).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'M';
+  if(Math.abs(v) >= 100000)  return '€' + (v/1000).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) + 'K';
+  return '€' + Math.round(v).toLocaleString('en-US');
+};
+const fmtN = (v,d=4) => (v===null||v===undefined||isNaN(v)) ? '—' : Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let state = {
+  country:'India', cn:'25232100', yr:2026,
+  tonnes:100, ets:85,
+  lastCalc: null
+};
+let activeSector = 'All';
+let tblSector = 'All';
+let tblSort = {col:'cost2026',dir:-1};
+
+// ════════════════════════════════════════════════════════════
+// INIT DROPDOWNS
+// ════════════════════════════════════════════════════════════
+function initDropdowns() {
+  // Countries
+  const selC = document.getElementById('sel-country');
+  COUNTRIES.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = CTRY_F[c]+' '+c;
+    selC.appendChild(o);
+  });
+  selC.value = 'India';
+  selC.addEventListener('change', () => {
+    state.country = selC.value;
+    populateCN();
+    calculate();
+  });
+
+  populateCN();
+
+  document.getElementById('sel-cn').addEventListener('change', () => {
+    state.cn = document.getElementById('sel-cn').value;
+    calculate();
+  });
+  document.getElementById('sel-year').addEventListener('change', () => {
+    state.yr = parseInt(document.getElementById('sel-year').value);
+    document.getElementById('inp-ets').value = ETS_DEF[state.yr];
+    state.ets = ETS_DEF[state.yr];
+    calculate();
+  });
+  document.getElementById('inp-tonnes').addEventListener('input', () => {
+    state.tonnes = parseFloat(document.getElementById('inp-tonnes').value)||100;
+  });
+  document.getElementById('inp-ets').addEventListener('input', () => {
+    state.ets = parseFloat(document.getElementById('inp-ets').value)||85;
+  });
+}
+
+function populateCN() {
+  const country = document.getElementById('sel-country').value;
+  const sel = document.getElementById('sel-cn');
+  const prev = sel.value;
+  sel.innerHTML = '';
+
+  // Get unique CN codes for this country, in order
+  const seen = new Set();
+  RAW.filter(r => r.c === country).forEach(r => {
+    if(seen.has(r.cn)) return;
+    seen.add(r.cn);
+    const o = document.createElement('option');
+    o.value = r.cn;
+    const desc = r.desc.length > 45 ? r.desc.slice(0,45)+'…' : r.desc;
+    o.textContent = r.cn + ' — ' + desc;
+    if(r.cn === prev) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  // If previous selection not found, default to first
+  if(!sel.value) sel.selectedIndex = 0;
+  state.cn = sel.value;
+}
+
+// ════════════════════════════════════════════════════════════
+// PHASE STRIP
+// ════════════════════════════════════════════════════════════
+function buildPhaseStrip() {
+  const grid = document.getElementById('phase-grid');
+  grid.innerHTML = '';
+  YEARS.forEach(yr => {
+    const fa = FA[yr];
+    const h = Math.round(fa * 52);
+    const col = fa >= 0.9 ? '#059669' : fa >= 0.5 ? '#D97706' : '#DC2626';
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="ph-col">
+        <div class="ph-pct" style="color:${col}">${FA_LBL[yr]}</div>
+        <div class="ph-bar-outer">
+          <div class="ph-bar-inner" style="height:${h}px;background:${col};width:100%"></div>
+        </div>
+        <div class="ph-yr">${yr}</div>
+      </div>`);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// SECTOR TABS
+// ════════════════════════════════════════════════════════════
+function buildSectorTabs(containerId, activeVar, onClickFn) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  ['All', ...Object.keys(CAT_C)].forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 's-btn' + (cat === activeVar ? ' on' : '');
+    btn.textContent = cat === 'Iron and Steel' ? 'Steel' : cat;
+    if(cat !== 'All' && cat === activeVar) {
+      btn.style.background = CAT_C[cat];
+    } else if(cat !== 'All') {
+      btn.style.color = CAT_C[cat];
+      btn.style.borderColor = hexA(CAT_C[cat], 0.4);
+    }
+    btn.onclick = () => { onClickFn(cat); };
+    el.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN CALCULATE
+// ════════════════════════════════════════════════════════════
+function calculate() {
+  const country = document.getElementById('sel-country').value;
+  const cn      = document.getElementById('sel-cn').value;
+  const yr      = parseInt(document.getElementById('sel-year').value);
+  const tonnes  = parseFloat(document.getElementById('inp-tonnes').value) || 100;
+  const ets     = parseFloat(document.getElementById('inp-ets').value) || 85;
+
+  state = {country, cn, yr, tonnes, ets};
+
+  const rec = find(country, cn);
+  const de  = getDe(country, cn, yr);
+
+  // Update result cards
+  if(de !== null && de !== undefined) {
+    const cpt   = de * ets;
+    const total = cpt * tonnes;
+    const certs = de * tonnes;
+
+    document.getElementById('rv-de').textContent    = fmtN(de,4) + ' tCO₂e/t';
+    document.getElementById('rv-cpt').textContent   = fmtE(cpt);
+    document.getElementById('rv-total').textContent = fmtE(total);
+    document.getElementById('rv-total-sub').textContent = `${Number(tonnes).toLocaleString('en-US')} tonnes × €${ets}/t`;
+    document.getElementById('rv-certs').textContent = fmtN(certs,3);
+    document.getElementById('rv-fa').textContent    = FA_LBL[yr];
+    document.getElementById('rv-fa-sub').textContent= `${yr} · ETS ${FA[yr]*100}% free allocation`;
+
+    document.getElementById('rv-formula').innerHTML = `
+      <strong>Cost</strong> = DE<sub>net</sub> × ETS × Quantity<br>
+      = <span class="hl">${fmtN(de,4)}</span> × <span class="hl">€${ets}</span> × <span class="hl">${tonnes}t</span><br>
+      = <strong style="color:var(--red)">${fmtE(total)}</strong><br>
+      <strong>Sector:</strong> ${rec?.cat||'—'}&nbsp;&nbsp;
+      <strong>Direct:</strong> ${fmtN(rec?.d,3)} tCO₂e/t`;
+  } else {
+    ['rv-de','rv-cpt','rv-total','rv-certs','rv-fa'].forEach(id => {
+      document.getElementById(id).textContent = 'N/A';
+    });
+    document.getElementById('rv-formula').innerHTML = '<em style="color:var(--t3)">No data available for this combination</em>';
+  }
+
+  // Update subtitle labels
+  const desc = rec?.desc?.slice(0,50) || cn;
+  document.getElementById('proj-sub').textContent   = `${country} · CN ${cn} · ${desc}`;
+  document.getElementById('chart-sub').textContent  = `${country} · ${cn} · ${tonnes}t`;
+  document.getElementById('cc-sub').textContent     = `CN ${cn} — ${desc} · ${yr} · ${tonnes}t · €${ets}/tCO₂e`;
+  document.getElementById('bar-title').textContent  = `All 22 Products — CBAM Cost (${country}, ${yr})`;
+  document.getElementById('bar-sub').textContent    = `${tonnes} tonnes · €${ets}/tCO₂e ETS price`;
+  document.getElementById('tbl-title').textContent  = `All 22 Products — ${country} · Detailed Data`;
+
+  buildProjectionTable();
+  buildLineChart();
+  buildCountryComparison();
+  buildBarChart();
+  buildProductTable();
+}
+
+// ════════════════════════════════════════════════════════════
+// PROJECTION TABLE
+// ════════════════════════════════════════════════════════════
+function buildProjectionTable() {
+  const {country, cn, yr: selYr, tonnes, ets} = state;
+  const tbody = document.getElementById('proj-tbody');
+  tbody.innerHTML = '';
+
+  const de2026 = getDe(country, cn, 2026);
+  const cost2026 = de2026 !== null ? de2026 * 85 * tonnes : null;
+
+  YEARS.forEach(yr => {
+    const de = getDe(country, cn, yr);
+    const etsY = ETS_DEF[yr];
+    const cost = de !== null ? de * etsY * tonnes : null;
+    const certs = de !== null ? de * tonnes : null;
+    const vs2026 = (cost !== null && cost2026) ? ((cost - cost2026) / Math.abs(cost2026) * 100) : null;
+
+    const isActive = yr === selYr;
+    const tr = document.createElement('tr');
+    if(isActive) tr.className = 'active-yr';
+
+    const faC = FA[yr] >= 0.9 ? '#059669' : FA[yr] >= 0.5 ? '#D97706' : '#DC2626';
+    const vsStr = vs2026 !== null && yr !== 2026
+      ? `<span style="color:${vs2026>0?'var(--red)':'var(--green2)'};font-weight:600">${vs2026>0?'+':''}${vs2026.toFixed(1)}%</span>`
+      : '—';
+
+    tr.innerHTML = `
+      <td class="l mono" style="font-weight:${isActive?700:400};color:${isActive?'var(--amber)':'var(--t1)'}">
+        ${yr}${isActive ? ' <span style="color:var(--amber);font-size:9px">◀ selected</span>' : ''}
+      </td>
+      <td class="mono" style="text-align:right;color:var(--blue2)">€${etsY}</td>
+      <td style="text-align:right"><span class="mono" style="color:${faC}">${FA_LBL[yr]}</span></td>
+      <td class="mono" style="text-align:right;color:var(--amber)">${de!==null?fmtN(de,4):'—'}</td>
+      <td class="mono" style="text-align:right">${de!==null?fmtE(de*etsY):'—'}</td>
+      <td class="mono" style="text-align:right;font-weight:${isActive?700:500};color:${isActive?'var(--red)':'var(--t0)'}">
+        ${cost!==null?fmtE(cost):'—'}
+      </td>
+      <td class="mono" style="text-align:right">${certs!==null?fmtN(certs,3):'—'}</td>
+      <td style="text-align:right">${vsStr}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// LINE CHART
+// ════════════════════════════════════════════════════════════
+function buildLineChart() {
+  const {country, cn, yr: selYr, tonnes} = state;
+  const canvas = document.getElementById('lineChart');
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const W = parent.offsetWidth, H = 200;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = {t:16, r:16, b:44, l:66};
+  const CW = W - PAD.l - PAD.r;
+  const CH = H - PAD.t - PAD.b;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0,0,W,H);
+
+  const costs = YEARS.map(yr => {
+    const de = getDe(country, cn, yr);
+    return de !== null ? de * ETS_DEF[yr] * tonnes : 0;
+  });
+
+  const maxV = Math.max(...costs) * 1.12 || 1;
+  const color = CTRY_C[country] || '#1A56DB';
+
+  // Grid lines
+  for(let i = 0; i <= 4; i++) {
+    const y = PAD.t + CH * (1 - i/4);
+    ctx.strokeStyle = '#DDE2EC'; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(PAD.l + CW, y); ctx.stroke();
+    ctx.fillStyle = '#8A9BB5'; ctx.font = '8.5px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmtEk(maxV * i/4), PAD.l - 5, y + 3);
+  }
+
+  // X labels + ETS price
+  YEARS.forEach((yr, i) => {
+    const x = PAD.l + CW * i / (YEARS.length - 1);
+    ctx.fillStyle = '#8A9BB5'; ctx.font = '8.5px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(yr, x, H - PAD.b + 13);
+    ctx.fillStyle = '#C2CEDC'; ctx.font = '7.5px JetBrains Mono, monospace';
+    ctx.fillText('€' + ETS_DEF[yr], x, H - PAD.b + 24);
+  });
+
+  // Area fill
+  ctx.beginPath();
+  YEARS.forEach((yr, i) => {
+    const x = PAD.l + CW * i / (YEARS.length - 1);
+    const y = PAD.t + CH * (1 - costs[i] / maxV);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(PAD.l + CW, PAD.t + CH);
+  ctx.lineTo(PAD.l, PAD.t + CH);
+  ctx.closePath();
+  ctx.fillStyle = hexA(color, 0.1);
+  ctx.fill();
+
+  // Line
+  ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  YEARS.forEach((yr, i) => {
+    const x = PAD.l + CW * i / (YEARS.length - 1);
+    const y = PAD.t + CH * (1 - costs[i] / maxV);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Dots + selected highlight
+  YEARS.forEach((yr, i) => {
+    const x = PAD.l + CW * i / (YEARS.length - 1);
+    const y = PAD.t + CH * (1 - costs[i] / maxV);
+    const isActive = yr === selYr;
+    ctx.beginPath(); ctx.arc(x, y, isActive ? 6 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = isActive ? 2.5 : 1.5; ctx.stroke();
+    if(isActive) {
+      ctx.fillStyle = color; ctx.font = 'bold 9px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(fmtEk(costs[i]), x, y - 12);
+    }
+  });
+
+  // Selected year vertical line
+  const si = YEARS.indexOf(selYr);
+  if(si >= 0) {
+    const x = PAD.l + CW * si / (YEARS.length - 1);
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = hexA(color, 0.4); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + CH); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// COUNTRY COMPARISON
+// ════════════════════════════════════════════════════════════
+function buildCountryComparison() {
+  const {cn, yr, tonnes, ets} = state;
+  const grid = document.getElementById('cc-grid');
+  grid.innerHTML = '';
+
+  const results = [];
+  COUNTRIES.forEach(country => {
+    const de = getDe(country, cn, yr);
+    if(de !== null) {
+      results.push({country, de, cost: de * ets * tonnes, certs: de * tonnes});
+    }
+  });
+
+  if(!results.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--t4);font-family:\'JetBrains Mono\',monospace;font-size:11px">No data available</div>';
+    return;
+  }
+
+  results.sort((a,b) => b.cost - a.cost);
+  const maxCost = results[0].cost;
+
+  results.forEach((r, i) => {
+    const clr = CTRY_C[r.country] || '#888';
+    const pct = (r.cost / maxCost * 100).toFixed(1);
+    const card = document.createElement('div');
+    card.className = 'cc-card';
+    card.style.setProperty('--ac', clr);
+    card.insertAdjacentHTML('afterbegin', `<div style="position:absolute;top:0;left:0;right:0;height:3px;background:${clr};border-radius:var(--r-md) var(--r-md) 0 0"></div>`);
+    card.innerHTML += `
+      <div class="cc-rank">#${i+1}</div>
+      <div class="cc-flag">${CTRY_F[r.country] || ''}</div>
+      <div class="cc-name" style="color:${clr}">${r.country}</div>
+      <div class="cc-cost" style="color:${clr}">${fmtE(r.cost)}</div>
+      <div class="cc-detail">${fmtN(r.certs,3)} certs &nbsp;·&nbsp; net DE: ${fmtN(r.de,4)} tCO₂e/t</div>
+      <div class="cc-bar-wrap">
+        <div class="cc-bar" style="width:${pct}%;background:${hexA(clr,.75)}"></div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// BAR CHART — all products for country
+// ════════════════════════════════════════════════════════════
+function buildBarChart() {
+  const {country, yr, tonnes, ets, cn: selCN} = state;
+  const canvas = document.getElementById('barChart');
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const W = parent.offsetWidth, H = 360;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = {t:12, r:90, b:48, l:90};
+  const CW = W - PAD.l - PAD.r;
+  const CH = H - PAD.t - PAD.b;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0,0,W,H);
+
+  const seen = new Set();
+  let recs = RAW.filter(r => {
+    if(r.c !== country) return false;
+    if(activeSector !== 'All' && r.cat !== activeSector) return false;
+    if(seen.has(r.cn)) return false;
+    seen.add(r.cn);
+    return true;
+  });
+
+  const data = recs.map(r => {
+    const de = r.de[Y2I(yr)];
+    return {cn: r.cn, desc: r.desc, cat: r.cat, de, cost: de !== null ? de * ets * tonnes : 0};
+  }).sort((a,b) => b.cost - a.cost);
+
+  if(!data.length) {
+    ctx.fillStyle = '#C2CEDC'; ctx.font = '12px Inter, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('No data', W/2, H/2); return;
+  }
+
+  const maxV = Math.max(...data.map(d => d.cost)) || 1;
+  const barH = Math.min(22, Math.max(8, Math.floor((CH - data.length * 3) / data.length)));
+
+  // Grid verticals
+  for(let i = 0; i <= 5; i++) {
+    const x = PAD.l + CW * i / 5;
+    ctx.strokeStyle = '#DDE2EC'; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + CH); ctx.stroke();
+    ctx.fillStyle = '#8A9BB5'; ctx.font = '8.5px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(fmtEk(maxV * i / 5), x, H - PAD.b + 14);
+  }
+
+  data.forEach((d, i) => {
+    const y = PAD.t + i * (barH + 3);
+    const bw = CW * d.cost / maxV;
+    const clr = CAT_C[d.cat] || '#1A56DB';
+    const isSelected = d.cn === selCN;
+
+    // Bar
+    ctx.fillStyle = isSelected ? clr : hexA(clr, 0.6);
+    if(ctx.roundRect) {
+      ctx.beginPath(); ctx.roundRect(PAD.l, y, bw, barH, 3); ctx.fill();
+    } else {
+      ctx.fillRect(PAD.l, y, bw, barH);
+    }
+
+    // Selected outline
+    if(isSelected) {
+      ctx.strokeStyle = clr; ctx.lineWidth = 1.5;
+      ctx.strokeRect(PAD.l, y, bw, barH);
+    }
+
+    // Left label (CN code)
+    ctx.fillStyle = isSelected ? '#0D1B2E' : '#4A607A';
+    ctx.font = isSelected ? 'bold 8.5px JetBrains Mono, monospace' : '8px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(d.cn, PAD.l - 5, y + barH/2 + 3);
+
+    // Right label (cost)
+    ctx.fillStyle = isSelected ? clr : '#4A607A';
+    ctx.font = isSelected ? 'bold 9px JetBrains Mono, monospace' : '8.5px JetBrains Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(fmtEk(d.cost), PAD.l + bw + 5, y + barH/2 + 3);
+
+    // Category dot
+    ctx.beginPath(); ctx.arc(PAD.l + bw + 72, y + barH/2, 3, 0, Math.PI*2);
+    ctx.fillStyle = clr; ctx.fill();
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// PRODUCT TABLE — all 22 CN codes for selected country
+// ════════════════════════════════════════════════════════════
+function buildProductTable() {
+  const {country, yr, tonnes, ets} = state;
+
+  // Build sector tabs for table
+  buildSectorTabs('tbl-sector-bar', tblSector, (cat) => {
+    tblSector = cat;
+    buildSectorTabs('tbl-sector-bar', tblSector, arguments.callee);
+    renderProductTable();
+  });
+
+  renderProductTable();
+}
+
+function renderProductTable() {
+  const {country, yr, tonnes, ets, cn: selCN} = state;
+
+  // Build thead
+  const thead = document.getElementById('prod-tbl-head');
+  const years2026_2034 = [2026,2027,2028,2029,2030,2031,2032,2033,2034];
+  thead.innerHTML = `<tr>
+    <th class="l">CN Code</th>
+    <th class="l">Category</th>
+    <th class="l">Description</th>
+    <th>Direct</th>
+    <th>Total</th>
+    ${years2026_2034.map(y=>`<th style="color:${y===yr?'var(--amber)':''}${y===yr?';font-weight:700':''}">${y}</th>`).join('')}
+    <th>Growth<br>26→34</th>
+  </tr>`;
+
+  // Filter
+  const seen = new Set();
+  let recs = RAW.filter(r => {
+    if(r.c !== country) return false;
+    if(tblSector !== 'All' && r.cat !== tblSector) return false;
+    if(seen.has(r.cn)) return false;
+    seen.add(r.cn);
+    return true;
+  });
+
+  // Sort
+  recs = [...recs].sort((a,b) => {
+    const deA = a.de[Y2I(yr)], deB = b.de[Y2I(yr)];
+    const cA = deA !== null ? deA * ets * tonnes : -1;
+    const cB = deB !== null ? deB * ets * tonnes : -1;
+    return cB - cA;
+  });
+
+  // Max for each year column
+  const maxByYear = {};
+  years2026_2034.forEach(y => {
+    maxByYear[y] = Math.max(...recs.map(r => {
+      const de = r.de[Y2I(y)];
+      return de !== null ? de * ETS_DEF[y] * tonnes : 0;
+    }));
+  });
+
+  const tbody = document.getElementById('prod-tbl-body');
+  tbody.innerHTML = '';
+
+  recs.forEach(rec => {
+    const clr = CAT_C[rec.cat] || '#888';
+    const isSelected = rec.cn === selCN;
+    const tr = document.createElement('tr');
+    if(isSelected) tr.className = 'selected';
+
+    // Year cost cells
+    const yrCells = years2026_2034.map(y => {
+      const de = rec.de[Y2I(y)];
+      const cost = de !== null ? de * ETS_DEF[y] * tonnes : null;
+      const mx = maxByYear[y];
+      const pct = (cost && mx) ? (cost/mx*100).toFixed(0) : 0;
+      const isYr = y === yr;
+      const isMax = cost && cost === mx;
+      return `<td style="text-align:right;background:${isYr?'rgba(180,83,9,.06)':''}">
+        <div class="inline-bar-wrap">
+          <div class="inline-bar"><div class="inline-bar-f" style="width:${pct}%;background:${hexA(clr,.7)}"></div></div>
+          <span class="mono" style="color:${isYr?'var(--amber)':isMax?clr:'var(--t0)'};font-weight:${isYr||isMax?600:400}">
+            ${cost!==null?fmtEk(cost):'—'}
+          </span>
+          ${isMax?`<span class="max-badge" style="background:${hexA(clr,.1)};color:${clr};border:1px solid ${hexA(clr,.3)}">▲</span>`:''}
+        </div>
+      </td>`;
+    }).join('');
+
+    // Growth
+    const de26 = rec.de[Y2I(2026)];
+    const de34 = rec.de[Y2I(2034)];
+    const growth = (de26 && de34) ? ((de34*100*ETS_DEF[2034] - de26*85*ETS_DEF[2026])/(de26*85*tonnes||1)*100) : null;
+    const growthStr = growth !== null
+      ? `<span style="color:${growth>0?'var(--red)':'var(--green2)'};font-weight:600">${growth>0?'+':''}${growth.toFixed(0)}%</span>`
+      : '—';
+
+    // Actually compute growth as 2034 cost vs 2026 cost per 100t
+    const cost26 = de26 !== null ? de26 * 85 * tonnes : null;
+    const cost34 = de34 !== null ? de34 * 100 * tonnes : null;
+    const growthReal = (cost26 && cost34) ? ((cost34-cost26)/Math.abs(cost26)*100) : null;
+    const growthRealStr = growthReal !== null
+      ? `<span style="color:${growthReal>0?'var(--red)':'var(--green2)'};font-weight:600">${growthReal>0?'+':''}${growthReal.toFixed(0)}%</span>`
+      : '—';
+
+    tr.innerHTML = `
+      <td class="l"><span class="mono" style="font-size:10px;font-weight:600;color:var(--t1)">${rec.cn}</span></td>
+      <td class="l">
+        <span class="cat-tag" style="color:${clr};border-color:${hexA(clr,.35)};background:${hexA(clr,.08)}">
+          ${rec.cat === 'Iron and Steel' ? 'Steel' : rec.cat}
+        </span>
+      </td>
+      <td class="l" style="font-size:9.5px;color:var(--t1);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${rec.desc}">
+        ${rec.desc}
+      </td>
+      <td class="mono" style="text-align:right;color:var(--t2)">${rec.d!==null?fmtN(rec.d,3):'N/A'}</td>
+      <td class="mono" style="text-align:right;color:var(--t2)">${rec.t!==null?fmtN(rec.t,3):'N/A'}</td>
+      ${yrCells}
+      <td style="text-align:right">${growthRealStr}</td>`;
+
+    tr.style.cursor = 'pointer';
+    tr.onclick = () => {
+      document.getElementById('sel-country').value = rec.c;
+      populateCN();
+      document.getElementById('sel-cn').value = rec.cn;
+      state.cn = rec.cn;
+      calculate();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// RESIZE
+// ════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  buildLineChart();
+  buildBarChart();
+});
+
+// ════════════════════════════════════════════════════════════
+// BOOTSTRAP
+// ════════════════════════════════════════════════════════════
+initDropdowns();
+buildPhaseStrip();
+buildSectorTabs('sector-bar', activeSector, cat => {
+  activeSector = cat;
+  buildSectorTabs('sector-bar', activeSector, arguments.callee);
+  buildBarChart();
+});
+calculate();
+</script>
+</body>
+</html>
